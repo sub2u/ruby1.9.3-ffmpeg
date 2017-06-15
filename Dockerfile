@@ -1,42 +1,23 @@
 FROM ruby:1.9.3
 MAINTAINER Subbu <subbarao.kly@gmail.com>
 
+
 RUN apt-get update && \
-    apt-get install -y \
-    nasm \
-    libmp3lame-dev \
-    libtheora-dev \
-    libvorbis-dev \
-    libvpx-dev \
-    libx264-dev \
-    libfreetype6-dev \
-    libass-dev && \
+    apt-get install -y time yasm nasm \
+    automake autoconf  pkg-config libcurl4-openssl-dev \
+    libxml2-dev libgtk2.0-dev libglib2.0-dev libevent-dev \
+    checkinstall libmp3lame0  libmp3lame-dev openssl \
+    libnotify-dev build-essential  libtool intltool \
+    libvorbis-dev libtheora-dev libvpx-dev libx264-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-
-# Install ffmpeg
-ENV FFMPEG_TAG n2.4.2
 RUN cd /tmp && \
-    git clone --depth 1 --branch $FFMPEG_TAG  git://source.ffmpeg.org/ffmpeg && \
-    cd ffmpeg && \
-    ./configure --prefix=$INSTALL_DIR \
-      --extra-cflags="-I${INSTALL_DIR}/include" \
-      --extra-ldflags="-L${INSTALL_DIR}/lib" \
-      --extra-libs="-ldl" \
-      --enable-gpl \
-      --enable-libass \
-      # --enable-libfdk-aac \
-      --enable-libmp3lame \
-      --enable-libtheora \
-      --enable-libvorbis \
-      --enable-libvpx \
-      --enable-libx264 \
-      --enable-libfreetype \
-      --enable-shared \
-      --enable-nonfree && \
-    make && \
-    make install && \
+    wget https://www.ffmpeg.org/releases/ffmpeg-3.0.tar.bz2 &&\
+    tar jxvf ffmpeg-3.0.tar.bz2 && cd ffmpeg-3.0 && \
+    ./configure --enable-openssl --enable-nonfree  --enable-libmp3lame --enable-libvorbis --enable-gpl --enable-libx264 --enable-libtheora --enable-libvpx  --prefix=/usr && time make -j 8 && mkdir /usr/share/ffmpeg && \
+    checkinstall --pkgversion=3.0.git -y && dpkg --install ffmpeg_*.deb && \
     cd /tmp && \
-    rm -rf ffmpeg
+    rm -rf ffmpeg-3.0
+
     
